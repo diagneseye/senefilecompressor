@@ -1,0 +1,11 @@
+java SenFileCompressor -c fic1 fic2 fic3 ... [-r cheminVersRepertoire [-f] ] [-v]
+(Pour archiver et compresser des fichiers)
+ou java SenFileCompressor -d fichier.sfc [-r cheminVersRepertoire [-f] ] [-v]
+(Pour décompresser  et désarchiver un fichier)
+ou java SenFileCompressor -h
+(Pour afficher l'aide)
+Détails des options : -c <liste fichier à compresser> 2 devra fournir en sortie
+fichier d'extension « .sfc » qui regroupe, sous forme compressé, les différents 
+fichiers fournis en paramètre
+java SenFileCompressor -d fichierADecompresser.sfc devra fournir en sortie
+l'intégralité des fichiers contenus dans l'archive donné en paramètre
