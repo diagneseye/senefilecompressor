@@ -4,8 +4,13 @@ ou java SenFileCompressor -d fichier.sfc [-r cheminVersRepertoire [-f] ] [-v]
 (Pour décompresser  et désarchiver un fichier)
 ou java SenFileCompressor -h
 (Pour afficher l'aide)
-Détails des options : -c <liste fichier à compresser> 2 devra fournir en sortie
-fichier d'extension « .sfc » qui regroupe, sous forme compressé, les différents 
-fichiers fournis en paramètre
-java SenFileCompressor -d fichierADecompresser.sfc devra fournir en sortie
-l'intégralité des fichiers contenus dans l'archive donné en paramètre
+Options : 
+-c <liste fichier à compresser> 2 devra fournir en sortie fichier d'extension « .sfc » qui regroupe, 
+sous forme compressé, les différents fichiers fournis en paramètre
+-d fichierADecompresser.sfc devra fournir en sortie l'intégralité des fichiers contenus 
+dans l'archive donné en paramètre
+« -r » qui permet de spécifier le chemin (absolu ou relatif) vers le répertoire où seront 
+stockés les fichiers (ou le fichier) produits par le programme
+« -f » qui permet de créer automatiquement le chemin vers le répertoire si celui-ci n’existe pas
+« -v » concerne la verbosité du programme. Le programme donnera des détails sur son 
+exécution en fonction de la présence ou non de ce paramètre.

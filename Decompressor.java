@@ -5,41 +5,51 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 
 public class Decompressor {
 
-    public Decompressor() {
+    private final String NOM_FICHIER_ARCHIVE = "fichier.sfc";
+    private final String NOM_FICHIER_DESAR_TEMP = "fichierdesar.tmp";
+
+    private String cheminVersRepertoire;
+    private boolean creerRepertoire;
+    private boolean executionVerbeuse;
+
+    public Decompressor(String cheminVersRepertoire, boolean creerRepertoire, boolean executionVerbeuse) {
+        this.cheminVersRepertoire = cheminVersRepertoire;
+        this.creerRepertoire = creerRepertoire;
+        this.executionVerbeuse = executionVerbeuse;
     }
 
-    public static void desachivageEtDecompression(String fichier, String cheminVersRepertoire,
+    public void desachivageEtDecompression(String fichier, String cheminVersRepertoire,
             boolean repertoireObligatoire,
             boolean verbose) {
 
-        if (verbose) {
-            System.out.println("L'éxécution se fera de manière verbeuse");
-        }
-
         File fichierCompresse = new File(fichier);
-        File fichierArchive = new File("fichierdesar.tmp");
         File repertoireDestination = new File(cheminVersRepertoire);
-
+        File fichierArchive = new File(cheminVersRepertoire + File.separator + NOM_FICHIER_DESAR_TEMP);
+        
+        afficherDetailsExecution("Vérification fichier source");
         if (fichierCompresse.exists()) {
 
-            decompression(fichierCompresse, fichierArchive);
+            afficherDetailsExecution("Vérification du répertoire de destination");
 
             if (!repertoireDestination.isDirectory()) {
                 if (!repertoireObligatoire) {
+                    afficherDetailsExecution("Création du répertoire de destination");
                     repertoireDestination.mkdir();
                 } else {
                     System.out.println("Répertoire (obligatoire) introuvable");
                     System.exit(0);
                 }
             }
-            
-           
-            desarchivage("fichierdesar.tmp", repertoireDestination.getPath());
+
+            decompression(fichierCompresse, fichierArchive);
+
+            desarchivage();
 
         } else {
             System.out.println("Fichier source n'existe pas");
@@ -47,44 +57,7 @@ public class Decompressor {
         }
     }
 
-    public static void desarchivage(String fichier, String cheminVersRepertoire) {
-        FileInputStream fis;
-        DataInputStream dis;
-        FileOutputStream fos;
-        File file;
-        byte[] tb;
-
-        file = new File(fichier);
-        try {
-            fis = new FileInputStream(file);
-            dis = new DataInputStream(fis);
-            int nbFichier = dis.readInt();
-            for (int i = 1; i <= nbFichier; i++) {
-                String nomFichier = dis.readUTF();
-                fos = new FileOutputStream(cheminVersRepertoire + File.separator + nomFichier);
-                Long tailleFichier = dis.readLong();
-                tb = new byte[1024];
-                
-                while (tailleFichier > 0) {
-                    tailleFichier -= dis.read(tb);
-                    fos.write(tb);
-                }
-                fos.flush();
-                fos.close();
-            }
-            fis.close();
-            dis.close();
-        } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-    }
-
-    public static void decompression(File fichierCompresse, File fichierArchive) {
+    public void decompression(File fichierCompresse, File fichierArchive) {
         FileInputStream fis;
         FileOutputStream fos;
         DataOutputStream dos;
@@ -100,11 +73,11 @@ public class Decompressor {
             dos = new DataOutputStream(fos);
             int nbLu;
 
+            afficherDetailsExecution("Début décompression");
             while ((nbLu = iin.read(inTb)) != -1) {
-
                 dos.write(inTb, 0, nbLu);
-
             }
+            afficherDetailsExecution("Fin décompression");
 
             iin.close();
             fis.close();
@@ -119,5 +92,74 @@ public class Decompressor {
             e.printStackTrace();
         }
 
+    }
+
+    public void desarchivage() {
+        FileInputStream fis;
+        DataInputStream dis;
+        FileOutputStream fos;
+        File file;
+        byte[] tb;
+
+        file = new File(NOM_FICHIER_DESAR_TEMP);
+        try {
+            fis = new FileInputStream(file);
+            dis = new DataInputStream(fis);
+            int nbFichier = dis.readInt();
+            afficherDetailsExecution("Début désarchivage");
+            for (int i = 1; i <= nbFichier; i++) {
+                String nomFichier = dis.readUTF();
+                fos = new FileOutputStream(cheminVersRepertoire + File.separator + nomFichier);
+                Long tailleFichier = dis.readLong();
+                tb = new byte[1024];
+
+                while (tailleFichier > 0) {
+                    tailleFichier -= dis.read(tb);
+                    fos.write(tb);
+                }
+                fos.flush();
+                fos.close();
+            }
+            afficherDetailsExecution("Fin désarchivage");
+            fis.close();
+            dis.close();
+        } catch (FileNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+    }
+
+    public void afficherDetailsExecution(String message) {
+        if (executionVerbeuse) {
+            System.out.println(message);
+        }
+    }
+
+    public void setCheminVersRepertoire(String cheminVersRepertoire) {
+        this.cheminVersRepertoire = cheminVersRepertoire;
+    }
+
+    public void setCreerRepertoire(boolean creerRepertoire) {
+        this.creerRepertoire = creerRepertoire;
+    }
+
+    public void setExecutionVerbeuse(boolean executionVerbeuse) {
+        this.executionVerbeuse = executionVerbeuse;
+    }
+
+    public String getCheminVersRepertoire() {
+        return cheminVersRepertoire;
+    }
+
+    public boolean isCreerRepertoire() {
+        return creerRepertoire;
+    }
+
+    public boolean isExecutionVerbeuse() {
+        return executionVerbeuse;
     }
 }

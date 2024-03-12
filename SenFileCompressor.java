@@ -5,15 +5,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class SenFileCompressor {
-    private static boolean repertoireObligatoire = true;
-    private static boolean verbose = false;
+    private static boolean creerRepertoire = true;
+    private static boolean executionVerbeuse = false;
     static ArrayList<String> fichiers = new ArrayList<String>();
     static String cheminVersRepertoire = "";
 
     public static void main(String[] args) {
 
         int tailleTableau = args.length;
-        int indexDernierFichierSouce;
+        int indexDernierFichierSource;
 
         if (tailleTableau != 0) {
 
@@ -21,30 +21,27 @@ public class SenFileCompressor {
 
                 case "-h":
                     afficherAide();
-                    System.exit(0);
-
                 case "-c":
-                    indexDernierFichierSouce = collecterFichiersSource(args);
-                    cheminVersRepertoire = validerDestinationEtVerbose(args, indexDernierFichierSouce, tailleTableau);
-                    Compressor.achivageEtCompression(fichiers, cheminVersRepertoire, repertoireObligatoire,
-                            verbose);
+                    indexDernierFichierSource = collecterFichiersSource(args);
+                    cheminVersRepertoire = destinationEtTypeExecution(args, indexDernierFichierSource, tailleTableau);
+                    Compressor compressor = new Compressor(fichiers, cheminVersRepertoire, creerRepertoire,
+                    executionVerbeuse);
+                    compressor.achivageEtCompression();
                     break;
 
                 case "-d":
-                    indexDernierFichierSouce = collecterFichiersSource(args);
-                    if (indexDernierFichierSouce != 2) {
+                    indexDernierFichierSource = collecterFichiersSource(args);
+                    if (indexDernierFichierSource != 2) {
                         afficherAide();
-                        System.exit(0);
                     }
-                    cheminVersRepertoire = validerDestinationEtVerbose(args, indexDernierFichierSouce, tailleTableau);
-                    Decompressor.desachivageEtDecompression(fichiers.get(0), cheminVersRepertoire,
-                            repertoireObligatoire,
-                            verbose);
+                    cheminVersRepertoire = destinationEtTypeExecution(args, indexDernierFichierSource, tailleTableau);
+                    Decompressor decompressor = new Decompressor(cheminVersRepertoire, creerRepertoire, executionVerbeuse); 
+                    decompressor.desachivageEtDecompression(fichiers.get(0), cheminVersRepertoire,
+                            creerRepertoire,
+                            executionVerbeuse);
                     break;
                 default:
                     afficherAide();
-                    System.exit(0);
-
             }
 
         }
@@ -57,13 +54,12 @@ public class SenFileCompressor {
         boolean continuer = true;
         if (index > tailleTableau) {
             afficherAide();
-            System.exit(0);
         }
 
         switch (args[index]) {
+
             case "-r", "-c", "-h", "-f", "-v":
                 afficherAide();
-                System.exit(0);
 
             default:
 
@@ -80,7 +76,6 @@ public class SenFileCompressor {
 
                         case "-c", "-h", "-f":
                             afficherAide();
-                            System.exit(0);
 
                         default:
                             fichiers.add(args[index]);
@@ -94,8 +89,9 @@ public class SenFileCompressor {
 
     }
 
-    private static String validerDestinationEtVerbose(String[] args, int index, int tailleTableau) {
-        String cheminVersRepertoire = "";
+    private static String destinationEtTypeExecution(String[] args, int index, int tailleTableau) {
+
+        String cheminVersRepertoire = ".";
 
         if (index < tailleTableau) {
 
@@ -108,12 +104,12 @@ public class SenFileCompressor {
                         if (index < tailleTableau) {
                             switch (args[index]) {
                                 case "-f":
-                                    repertoireObligatoire = false;
+                                    creerRepertoire = false;
                                     index++;
                                     if (index < tailleTableau) {
                                         switch (args[index]) {
                                             case "-v":
-                                                verbose = true;
+                                                executionVerbeuse = true;
                                                 break;
                                             default:
                                                 break;
@@ -121,7 +117,7 @@ public class SenFileCompressor {
                                     }
                                     break;
                                 case "-v":
-                                    verbose = true;
+                                    executionVerbeuse = true;
                                     break;
 
                                 default:
@@ -130,40 +126,36 @@ public class SenFileCompressor {
                         }
                     } else {
                         afficherAide();
-                        System.exit(0);
                     }
                     break;
 
                 case "-v":
-                    verbose = true;
+                    executionVerbeuse = true;
                     break;
 
                 default:
                     afficherAide();
-                    System.exit(0);
-
             }
 
-        } else {
-            afficherAide();
-            System.exit(0);
         }
         return cheminVersRepertoire;
 
     }
 
-    private static void afficherAide() {        
+    private static void afficherAide() {
 
         File fileAide = new File("help.txt");
         try (BufferedReader br = new BufferedReader(new FileReader(fileAide))) {
-            String ligne =  br.readLine();
+            String ligne = br.readLine();
             System.out.println(ligne);
 
             while ((ligne = br.readLine()) != null) {
-                System.out.println(ligne.indent(15));
+                System.out.println(ligne.indent(5));
             }
+
+            System.exit(0);
+
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 

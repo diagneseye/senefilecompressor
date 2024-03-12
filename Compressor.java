@@ -10,61 +10,72 @@ import java.io.File;
 
 // Class Compressor (Cheikh A Diagne SEYE - Ismaila DIATTA)
 public class Compressor {
-    
-    public static void achivageEtCompression(ArrayList<String> fichiers, String cheminVersRepertoire,
-            boolean repertoireObligatoire, boolean verbose) {
-    
 
-        if (verbose) {
-            System.out.println("L'éxécution se fera de manière verbeuse");
-        }
-        archivage(fichiers, cheminVersRepertoire, repertoireObligatoire);
-        compression(cheminVersRepertoire);
+    private final String NOM_FICHIER_TEMP = "fichier.tmp";
+    private final String NOM_FICHIER_COMPRESSE = "fichier.sfc";
+
+    private String cheminVersRepertoire;
+    private ArrayList<String> fichiers;
+    private boolean creerRepertoire;
+    private boolean executionVerbeuse;
+
+    public Compressor(ArrayList<String> fichiers, String cheminVersRepertoire, boolean creerRepertoire,
+            boolean executionVerbeuse) {
+        this.fichiers = fichiers;
+        this.cheminVersRepertoire = cheminVersRepertoire;
+        this.creerRepertoire = creerRepertoire;
+        this.executionVerbeuse = executionVerbeuse;
     }
 
-    public static void archivage(ArrayList<String> fichiers, String cheminVersRepertoire ,boolean repertoireObligatoire) {
+    public void achivageEtCompression() {
+        File repertoireDestination = new File(cheminVersRepertoire);
+        archivage(repertoireDestination);
+        compression();
+    }
+
+    public void archivage(File repertoireDestination) {
         ArrayList<File> files = new ArrayList<File>();
         FileOutputStream fos;
         DataOutputStream dos;
         FileInputStream fis;
         byte[] tb = new byte[1024];
-       
-        File  repertoireDestination = new File(cheminVersRepertoire);
 
+        afficherDetailsExecution("Vérification des fichiers");
         for (String fichier : fichiers) {
             File newfile = new File(fichier);
             if (newfile.exists()) {
+
                 files.add(newfile);
-            }else{
+            } else {
                 System.out.printf("Le fichier %s est introuvable \n", fichier);
                 System.exit(0);
             }
         }
         
+        afficherDetailsExecution("Vérification du répertoire de destination");
         if (!repertoireDestination.isDirectory()) {
-            if (!repertoireObligatoire) {
+
+            if (!creerRepertoire) {
+                afficherDetailsExecution("Création répertoire de destination");
                 repertoireDestination.mkdir();
-            }else{
-                // throw new ExceptionRepertoireIntrouvable extends Exception("Dossier introuva");
-                System.out.println( "Répertoire (obligatoire) introuvable");
+            } else {
+                System.out.println("Répertoire (obligatoire) introuvable");
                 System.exit(0);
             }
         }
-        File  fichierArchive = new File(repertoireDestination.getPath()+File.separator+"fichier.tmp");
+
+        File fichierArchive = new File(repertoireDestination.getPath() + File.separator + NOM_FICHIER_TEMP);
 
         try {
             fos = new FileOutputStream(fichierArchive);
             dos = new DataOutputStream(fos);
-            // On recupére le nombre de fichiers, qu'on enregistre en premier sur notre
-            // fichier archive
             dos.writeInt(fichiers.size());
-            // Pour chaque fichier dans notre liste de fichier
+
+            afficherDetailsExecution("Début archivage");
+
             for (File file : files) {
-                // On crée un objet de type FileInputStream
                 fis = new FileInputStream(file);
-                // On recupére le nom du fichier pour l'enregistré dans le fichier archive
                 dos.writeUTF(file.getName());
-                // On recupére la taille du fichier pour l'enregistré dans le fichier archive
                 dos.writeLong(file.length());
                 int nbLu;
                 while ((nbLu = fis.read(tb)) != -1) {
@@ -74,20 +85,18 @@ public class Compressor {
 
                 fis.close();
             }
-
+            afficherDetailsExecution("Fin archivage");
             fos.close();
             dos.close();
         } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
     }
 
-    public static void compression(String cheminVersRepertoire) {
+    public void compression() {
         FileInputStream fis;
         DataInputStream dis;
         FileOutputStream fos;
@@ -96,8 +105,8 @@ public class Compressor {
         byte[] inTb = new byte[1024];
         byte[] outTb = new byte[1024];
         int nbBytes = 0;
-        File  fichierArchive = new File(cheminVersRepertoire+File.separator+"fichier.tmp");
-        File  fichierCompresse = new File(cheminVersRepertoire+File.separator+"fichier.sfc");
+        File fichierArchive = new File(cheminVersRepertoire + File.separator + NOM_FICHIER_TEMP);
+        File fichierCompresse = new File(cheminVersRepertoire + File.separator + NOM_FICHIER_COMPRESSE);
 
         try {
             fis = new FileInputStream(fichierArchive);
@@ -105,6 +114,8 @@ public class Compressor {
             fos = new FileOutputStream(fichierCompresse);
             dos = new DataOutputStream(fos);
             int nbLu;
+
+            afficherDetailsExecution("Début Compression");
 
             while (true) {
                 nbLu = fis.read(inTb);
@@ -128,6 +139,7 @@ public class Compressor {
                 }
             }
 
+            afficherDetailsExecution("Fin Compression");
 
             fis.close();
             fos.close();
@@ -143,10 +155,43 @@ public class Compressor {
         }
 
     }
+
+    public void afficherDetailsExecution(String message) {
+        if (executionVerbeuse) {
+            System.out.println(message);
+        }
+    }
+
+    public void setCheminVersRepertoire(String cheminVersRepertoire) {
+        this.cheminVersRepertoire = cheminVersRepertoire;
+    }
+
+    public String getCheminVersRepertoire() {
+        return cheminVersRepertoire;
+    }
+
+    public void setFichiers(ArrayList<String> fichiers) {
+        this.fichiers = fichiers;
+    }
+
+    public ArrayList<String> getFichiers() {
+        return fichiers;
+    }
+
+    public void setCreerRepertoire(boolean creerRepertoire) {
+        this.creerRepertoire = creerRepertoire;
+    }
+
+    public Boolean getCreerRepertoire() {
+        return creerRepertoire;
+    }
+
+    public void setExecutionVerbeuse(boolean executionVerbeuse) {
+        this.executionVerbeuse = executionVerbeuse;
+    }
+
+    public boolean getExecutionVerbeuse() {
+        return executionVerbeuse;
+    }
+
 }
-
-
-// class ExceptionRepertoireIntrouvable extends Exception {
-//     ExceptionRepertoireIntrouvable(String msg){ super(msg);}
-    
-// }
