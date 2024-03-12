@@ -122,8 +122,8 @@ public class Decompressor {
             afficherDetailsExecution("Fin désarchivage");
             fis.close();
             dis.close();
-            // afficherDetailsExecution("Suppression fichierdesarchive temporaire");
-            // fichierArchive.delete();
+            afficherDetailsExecution("Suppression fichierdesarchive temporaire");
+            fichierArchive.delete();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {

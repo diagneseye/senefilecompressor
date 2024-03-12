@@ -44,6 +44,8 @@ public class SenFileCompressor {
                     afficherAide();
             }
 
+        }else{
+            afficherAide();
         }
 
     }
@@ -52,7 +54,7 @@ public class SenFileCompressor {
         int tailleTableau = args.length;
         int index = 1;
         boolean continuer = true;
-        if (index > tailleTableau) {
+        if (index == tailleTableau) {
             afficherAide();
         }
 
