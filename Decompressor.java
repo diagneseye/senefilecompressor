@@ -30,13 +30,12 @@ public class Decompressor {
 
         File fichierCompresse = new File(fichier);
         File repertoireDestination = new File(cheminVersRepertoire);
-        File fichierArchive = new File(cheminVersRepertoire + File.separator + NOM_FICHIER_DESAR_TEMP);
         
         afficherDetailsExecution("Vérification fichier source");
         if (fichierCompresse.exists()) {
-
+            
             afficherDetailsExecution("Vérification du répertoire de destination");
-
+            
             if (!repertoireDestination.isDirectory()) {
                 if (!repertoireObligatoire) {
                     afficherDetailsExecution("Création du répertoire de destination");
@@ -46,10 +45,11 @@ public class Decompressor {
                     System.exit(0);
                 }
             }
-
+            afficherDetailsExecution("Création fichierdesarchive temporaire");
+            File fichierArchive = new File(cheminVersRepertoire + File.separator + NOM_FICHIER_DESAR_TEMP);
+            
             decompression(fichierCompresse, fichierArchive);
-
-            desarchivage();
+            desarchivage(fichierArchive);
 
         } else {
             System.out.println("Fichier source n'existe pas");
@@ -94,16 +94,15 @@ public class Decompressor {
 
     }
 
-    public void desarchivage() {
+    public void desarchivage(File fichierArchive) {
         FileInputStream fis;
         DataInputStream dis;
         FileOutputStream fos;
         File file;
         byte[] tb;
 
-        file = new File(NOM_FICHIER_DESAR_TEMP);
         try {
-            fis = new FileInputStream(file);
+            fis = new FileInputStream(fichierArchive);
             dis = new DataInputStream(fis);
             int nbFichier = dis.readInt();
             afficherDetailsExecution("Début désarchivage");
@@ -123,11 +122,11 @@ public class Decompressor {
             afficherDetailsExecution("Fin désarchivage");
             fis.close();
             dis.close();
+            // afficherDetailsExecution("Suppression fichierdesarchive temporaire");
+            // fichierArchive.delete();
         } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
